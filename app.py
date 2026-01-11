@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import pickle
 import os
 
@@ -8,6 +8,12 @@ app = Flask(__name__)
 #Loads the trained model
 with open("model/model.pkl", "rb") as f:
   model = pickle.load(f)
+
+#UI Route
+@app.route("/")
+def home():
+ return render_template("index.html")
+  
 
 #Creating an API endpoint
 @app.route("/predict", methods = ["POST"])
