@@ -74,3 +74,9 @@ button:disabled {
   color: #ef4444;
   font-size: 14px;
 }
+
+.info {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #facc15;
+}

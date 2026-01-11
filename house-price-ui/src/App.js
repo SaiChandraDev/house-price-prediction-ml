@@ -2,15 +2,13 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  // -----------------------------
-  // State variables (UI data)
-  // -----------------------------
   const [area, setArea] = useState("");
   const [bedrooms, setBedrooms] = useState("");
   const [location, setLocation] = useState("");
   const [predictedPrice, setPredictedPrice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [coldStartMsg, setColdStartMsg] = useState("");
 
   // -----------------------------
   // Call Flask ML API
@@ -18,16 +16,23 @@ function App() {
   const predictPrice = async () => {
     setError("");
     setPredictedPrice(null);
+    setColdStartMsg("");
 
-    // Basic validation
     if (!area || !bedrooms || !location) {
       setError("Please fill all fields");
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
+    // Show cold-start message if request is slow
+    const coldStartTimer = setTimeout(() => {
+      setColdStartMsg(
+        "⏳ First request may take some time due to server cold start (free cloud tier). Please wait..."
+      );
+    }, 5000);
+
+    try {
       const response = await fetch(
         "https://house-price-prediction-ml-zhgk.onrender.com/predict",
         {
@@ -48,13 +53,12 @@ function App() {
     } catch (err) {
       setError("Failed to get prediction");
     } finally {
+      clearTimeout(coldStartTimer);
       setLoading(false);
+      setColdStartMsg("");
     }
   };
 
-  // -----------------------------
-  // UI
-  // -----------------------------
   return (
     <div className="container">
       <div className="card">
@@ -85,6 +89,8 @@ function App() {
         <button onClick={predictPrice} disabled={loading}>
           {loading ? "Predicting..." : "Predict Price"}
         </button>
+
+        {coldStartMsg && <div className="info">{coldStartMsg}</div>}
 
         {error && <div className="error">{error}</div>}
 
