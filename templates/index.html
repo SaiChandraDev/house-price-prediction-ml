@@ -1,131 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>House Price Prediction</title>
+<meta charset="UTF-8">
+<title>House Price Prediction</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+    body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Arial, sans-serif;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .dashboard {
+        background: #020617;
+        width: 720px;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    }
 
-        .card {
-            background: #ffffff;
-            width: 380px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            text-align: center;
-        }
+    h1 {
+        margin: 0 0 5px;
+        font-size: 22px;
+    }
 
-        h1 {
-            margin-bottom: 25px;
-            font-size: 24px;
-            color: #333;
-        }
+    .subtitle {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-bottom: 25px;
+    }
 
-        label {
-            display: block;
-            text-align: left;
-            font-size: 14px;
-            margin-bottom: 5px;
-            color: #555;
-        }
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
+    .card {
+        background: #020617;
+        border: 1px solid #1e293b;
+        border-radius: 12px;
+        padding: 20px;
+    }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #4f46e5;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+    label {
+        font-size: 13px;
+        color: #94a3b8;
+    }
 
-        button:hover {
-            background: #4338ca;
-        }
+    input {
+        width: 100%;
+        margin-top: 6px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #020617;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        color: #e5e7eb;
+        font-size: 14px;
+    }
 
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #111;
-        }
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #22c55e;
+        color: #020617;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
 
-        .footer {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #777;
-        }
-    </style>
+    button:hover {
+        background: #16a34a;
+    }
+
+    .output {
+        font-size: 28px;
+        font-weight: 700;
+        margin-top: 15px;
+        color: #22c55e;
+    }
+
+    .hint {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 5px;
+    }
+</style>
 </head>
 
 <body>
 
-<div class="card">
-    <h1>🏠 House Price Predictor</h1>
+<div class="dashboard">
+    <h1>🏠 House Price Prediction</h1>
+    <div class="subtitle">Machine Learning Model · Flask · Render</div>
 
-    <label>Area (sq ft)</label>
-    <input id="area" type="number" placeholder="e.g. 1200">
+    <div class="grid">
 
-    <label>Bedrooms</label>
-    <input id="bedrooms" type="number" placeholder="e.g. 2">
+        <!-- INPUT CARD -->
+        <div class="card">
+            <label>Area (sq ft)</label>
+            <input id="area" type="number" placeholder="1200">
 
-    <label>Location Code</label>
-    <input id="location" type="number" placeholder="e.g. 1">
+            <label>Bedrooms</label>
+            <input id="bedrooms" type="number" placeholder="2">
 
-    <button onclick="predict()">Predict Price</button>
+            <label>Location Code</label>
+            <input id="location" type="number" placeholder="1">
 
-    <div class="result" id="result"></div>
+            <button onclick="predict()">Predict Price</button>
+        </div>
 
-    <div class="footer">
-        ML Model • Flask • Render
+        <!-- OUTPUT CARD -->
+        <div class="card">
+            <label>Predicted Value</label>
+            <div class="output" id="result">₹ —</div>
+            <div class="hint">Based on trained ML model</div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    async function predict() {
-        const area = document.getElementById("area").value;
-        const bedrooms = document.getElementById("bedrooms").value;
-        const location = document.getElementById("location").value;
+async function predict() {
+    const response = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            area: Number(document.getElementById("area").value),
+            bedrooms: Number(document.getElementById("bedrooms").value),
+            location: Number(document.getElementById("location").value)
+        })
+    });
 
-        const response = await fetch("/predict", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                area: Number(area),
-                bedrooms: Number(bedrooms),
-                location: Number(location)
-            })
-        });
-
-        const data = await response.json();
-        document.getElementById("result").innerText =
-            "Predicted Price: ₹ " + data.predicted_price.toLocaleString();
-    }
+    const data = await response.json();
+    document.getElementById("result").innerText =
+        "₹ " + data.predicted_price.toLocaleString();
+}
 </script>
 
 </body>
